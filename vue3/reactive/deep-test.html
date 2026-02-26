@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>深层响应式测试</title>
+</head>
+<body>
+    <h1>深层响应式测试</h1>
+    <input type="text" id="cityInput" placeholder="输入城市">
+    <div id="output"></div>
+    <pre id="log"></pre>
+
+    <script src="./reactive.js"></script>
+    <script>
+        const logEl = document.getElementById('log');
+        function log(msg) {
+            logEl.textContent += msg + '\n';
+        }
+
+        log('=== 开始测试 ===');
+
+        const state = reactive({
+            user: {
+                address: {
+                    city: '北京'
+                }
+            }
+        });
+
+        log('创建响应式对象');
+
+        // 获取深层引用
+        const user = state.user;
+        const address = state.user.address;
+
+        log('user 是响应式? ' + (user.__is_reactive));
+        log('address 是响应式? ' + (address.__is_reactive));
+
+        // 创建 effect
+        effect(() => {
+            const city = state.user.address.city;
+            log('effect 执行, city = ' + city);
+            document.getElementById('output').textContent = city;
+        });
+
+        log('=== 等待输入 ===');
+
+        document.getElementById('cityInput').addEventListener('input', (e) => {
+            const newVal = e.target.value;
+            log('设置 state.user.address.city = ' + newVal);
+
+            // 方式1: 直接设置
+            state.user.address.city = newVal;
+
+            log('读取 state.user.address.city = ' + state.user.address.city);
+        });
+    </script>
+</body>
+</html>

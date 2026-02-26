@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vue3 响应式 - 简化测试</title>
+    <style>
+        body { font-family: monospace; padding: 20px; }
+        .box { border: 2px solid #333; padding: 20px; margin: 10px 0; }
+        input { padding: 5px; margin: 5px; }
+    </style>
+</head>
+<body>
+    <h1>Vue3 响应式 - 简化测试</h1>
+
+    <div class="box">
+        <h3>Demo 1: 基础响应式</h3>
+        <input type="text" id="input1" placeholder="输入内容">
+        <div>显示: <span id="output1"></span></div>
+    </div>
+
+    <div class="box">
+        <h3>Demo 2: 计算属性</h3>
+        <input type="number" id="price" value="10"> x
+        <input type="number" id="qty" value="5">
+        <div>总价: <span id="total">0</span></div>
+    </div>
+
+    <div class="box">
+        <h3>控制台日志</h3>
+        <pre id="console" style="background: #f0f0f0; padding: 10px;"></pre>
+    </div>
+
+    <script>
+        // 捕获 console.log
+        const consoleEl = document.getElementById('console');
+        const originalLog = console.log;
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            consoleEl.textContent += args.join(' ') + '\n';
+        };
+
+        // ========================================
+        // 响应式核心实现
+        // ========================================
+        const targetMap = new WeakMap();
+        let activeEffect = null;
+        const effectStack = [];
+
+        function track(target, key) {
+            if (!activeEffect) return;
+            console.log('  [track] 收集依赖:', key);
+            let depsMap = targetMap.get(target);
+            if (!depsMap) {
+                targetMap.set(target, (depsMap = new Map()));
+            }
+            let dep = depsMap.get(key);
+            if (!dep) {
+                depsMap.set(key, (dep = new Set()));
+            }
+            if (!dep.has(activeEffect)) {
+                dep.add(activeEffect);
+                activeEffect.deps.push(dep);
+            }
+        }
+
+        function trigger(target, key) {
+            console.log('  [trigger] 触发更新:', key);
+            const depsMap = targetMap.get(target);
+            if (!depsMap) return;
+            const dep = depsMap.get(key);
+            if (!dep) return;
+            dep.forEach(effectFn => {
+                if (effectFn !== activeEffect) {
+                    if (effectFn.options && effectFn.options.scheduler) {
+                        effectFn.options.scheduler(effectFn);
+                    } else {
+                        effectFn();
+                    }
+                }
+            });
+        }
+
+        function reactive(target) {
+            if (typeof target !== 'object' || target === null) {
+                return target;
+            }
+            if (target.__is_reactive) {
+                return target;
+            }
+
+            const handler = {
+                get(target, key, receiver) {
+                    track(target, key);
+                    const result = Reflect.get(target, key, receiver);
+                    if (typeof result === 'object' && result !== null) {
+                        return reactive(result);
+                    }
+                    return result;
+                },
+                set(target, key, value, receiver) {
+                    const oldValue = target[key];
+                    const result = Reflect.set(target, key, value, receiver);
+                    if (oldValue !== value) {
+                        trigger(target, key);
+                    }
+                    return result;
+                }
+            };
+
+            const proxy = new Proxy(target, handler);
+            proxy.__is_reactive = true;
+            return proxy;
+        }
+
+        function effect(fn, options = {}) {
+            const effectFn = () => {
+                try {
+                    activeEffect = effectFn;
+                    effectStack.push(effectFn);
+                    return fn();
+                } finally {
+                    effectStack.pop();
+                    activeEffect = effectStack[effectStack.length - 1];
+                }
+            };
+            effectFn.deps = [];
+            effectFn.options = options;
+            effectFn();
+        }
+
+        function computed(getter) {
+            console.log('[computed] 创建计算属性');
+            let value;
+            let dirty = true;
+            let effectFn;
+            const computedObj = {};
+
+            effectFn = effect(() => {
+                console.log('[computed] 重新计算');
+                value = getter();
+                dirty = false;
+            }, {
+                scheduler: () => {
+                    console.log('[computed] scheduler 触发，标记 dirty');
+                    dirty = true;
+                    trigger(computedObj, 'value');
+                }
+            });
+
+            Object.defineProperty(computedObj, 'value', {
+                get() {
+                    console.log('[computed] getter 被调用, dirty =', dirty);
+                    track(computedObj, 'value');
+                    if (dirty) {
+                        console.log('[computed] 重新执行 effectFn');
+                        value = effectFn();
+                        dirty = false;
+                    }
+                    return value;
+                }
+            });
+
+            return computedObj;
+        }
+
+        // ========================================
+        // Demo 1: 基础响应式
+        // ========================================
+        console.log('=== Demo 1 开始 ===');
+        const state1 = reactive({ text: 'hello' });
+
+        effect(() => {
+            console.log('[Demo 1] effect 执行, text =', state1.text);
+            document.getElementById('output1').textContent = state1.text;
+        });
+
+        document.getElementById('input1').addEventListener('input', (e) => {
+            console.log('[Demo 1] 输入:', e.target.value);
+            state1.text = e.target.value;
+        });
+
+        // ========================================
+        // Demo 2: 计算属性
+        // ========================================
+        console.log('=== Demo 2 开始 ===');
+
+        try {
+            const state2 = reactive({ price: 10, quantity: 5 });
+
+            const total = computed(() => {
+                console.log('[total] 计算总价:', state2.price, '*', state2.quantity);
+                return state2.price * state2.quantity;
+            });
+
+            effect(() => {
+                console.log('[Demo 2] 更新显示, total.value =', total.value);
+                document.getElementById('total').textContent = total.value;
+            });
+
+            document.getElementById('price').addEventListener('input', (e) => {
+                console.log('[Demo 2] 修改 price:', e.target.value);
+                state2.price = Number(e.target.value) || 0;
+            });
+
+            document.getElementById('qty').addEventListener('input', (e) => {
+                console.log('[Demo 2] 修改 quantity:', e.target.value);
+                state2.quantity = Number(e.target.value) || 0;
+            });
+
+            console.log('[Demo 2] 初始化完成, total.value =', total.value);
+        } catch (err) {
+            console.error('Demo 2 出错:', err);
+            console.error('错误堆栈:', err.stack);
+        }
+    </script>
+</body>
+</html>
