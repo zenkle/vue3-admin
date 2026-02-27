@@ -1,18 +1,10 @@
 <script setup lang="ts">
 import { usrCounterStore } from "@/stores/counter";
 const counterStore = usrCounterStore()
-import Screen from "@/views/Screen/index.vue"
 </script>
-
 <template>
-  <div id="app">
-    <Screen />
-  </div>
+111
 </template>
+<style lang="scss" scoped>
 
-<style scoped>
-#app{
-    width: 100%;
-    height: 100%;
-}
 </style>
