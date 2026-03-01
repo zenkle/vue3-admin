@@ -16,7 +16,7 @@ export default defineConfig(({ mode }) => {
     plugins: [
       UnoCSS(),
       AutoImport({
-        imports: ["vue"],
+        imports: ["vue", { "@vueuse/core": ["useDateFormat", "useNow", "useWindowSize"] }],
         resolvers: [ElementPlusResolver(), IconsResolver({})],
         dts: resolve(__dirname, "auto-imports.d.ts"),
       }),

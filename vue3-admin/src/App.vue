@@ -5,13 +5,13 @@ import Screen from "@/views/Screen/index.vue"
 </script>
 
 <template>
-  <div id="app">
+  <div class="app">
     <Screen />
   </div>
 </template>
 
 <style scoped>
-#app{
+.app{
     width: 100%;
     height: 100%;
 }
