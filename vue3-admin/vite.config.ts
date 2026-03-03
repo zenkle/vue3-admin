@@ -58,7 +58,7 @@ export default defineConfig(({ mode }) => {
       port: +env.VITE_APP_PORT,
       proxy: {
         [env.VITE_APP_BASE_API]: {
-          target: "http://vapi.youlai.tech",
+          target: "https://api.youlai.tech",
           changeOrigin: true,
           rewrite: (path) =>
             path.replace(new RegExp("^" + env.VITE_APP_BASE_API), ""),
