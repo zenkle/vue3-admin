@@ -14,7 +14,7 @@ const authApi = {
       captchaId: data.captchaId,
       captchaCode: data.captchaCode,
     };
-    return request<LoginResponse>({
+    return request<any,LoginResponse>({
       url: `${AUTH_BASE_URL}/login`,
       method: "post",
       data: payload,

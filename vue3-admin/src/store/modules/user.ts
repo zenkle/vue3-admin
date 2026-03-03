@@ -8,9 +8,9 @@ export const useUserStore = defineStore("user", () => {
       authApi
         .login(loginRequest)
         .then((data) => {
-          const { accessToken, refreshToken } = data.data;
-          localStorage.set("ACCESS_TOKEN", accessToken);
-          localStorage.set("REFRESH_TOKEN", refreshToken);
+          const { accessToken, refreshToken } = data;
+          localStorage.setItem("ACCESS_TOKEN", accessToken);
+          localStorage.setItem("REFRESH_TOKEN", refreshToken);
           resolve();
         })
         .catch((err) => {
