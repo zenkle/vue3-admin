@@ -3,10 +3,11 @@ import {
   createWebHashHistory,
   type RouteRecordRaw,
 } from "vue-router";
+const Layout = () => import("@/layouts/index.vue");
 const constantRoutes: RouteRecordRaw[] = [
   {
     path: "/login",
-    name:'login',
+    name: "login",
     component: () => import("@/views/login/index.vue"),
     meta: {
       title: "登录",
@@ -14,11 +15,19 @@ const constantRoutes: RouteRecordRaw[] = [
   },
   {
     path: "/",
-    name:'screen',
-    component: () => import("@/views/Screen/index.vue"),
-    meta: {
-      title: "屏幕",
-    },
+    name: "/",
+    component: Layout,
+    redirect: "/dashboard",
+    children: [
+      {
+        path: "dashboard",
+        name: "Dashboard",
+        component: () => import("@/views/Screen/index.vue"),
+        meta: {
+          title: "dashboard",
+        },
+      },
+    ],
   },
 ];
 
