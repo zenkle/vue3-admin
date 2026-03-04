@@ -3,7 +3,7 @@
         <div class="layout__sidebar">222</div>
 
         <div class="layout__main">
-            main
+            <router-view></router-view>
         </div>
     </BaseLayout>
 </template>

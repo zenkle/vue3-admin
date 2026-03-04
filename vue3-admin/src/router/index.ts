@@ -22,7 +22,7 @@ const constantRoutes: RouteRecordRaw[] = [
       {
         path: "dashboard",
         name: "Dashboard",
-        component: () => import("@/views/Screen/index.vue"),
+        component: () => import("@/views/vue3/reactivity/ref.vue"),
         meta: {
           title: "dashboard",
         },
