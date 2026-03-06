@@ -1,14 +1,46 @@
 // 创建全局变量，用来暂存当前正在执行的副作用函数
-export interface RefEffect {
-  (): void;
+// export interface RefEffect {
+//   (): void;
+//   scheduler?: () => void;
+// }
+export class EffectRunner {
+  fn: () => void;
   scheduler?: () => void;
+  deps?: Set<EffectRunner>[] = [];
+  active = true;
+  constructor(fn: () => void, options: any = {}) {
+    this.fn = fn;
+    this.scheduler = options?.scheduler;
+  }
+  run() {
+    if (!this.active) return;
+    cleanup(this);
+    const prevEffect = activeEffect;
+    activeEffect = this;
+    try {
+      return this.fn();
+    } finally {
+      activeEffect = prevEffect;
+    }
+  }
+  stop() {
+    if (this.active) {
+      cleanup(this);
+      this.active = false;
+    }
+  }
 }
 
-let activeEffect: RefEffect | null = null;
+function cleanup(runner: EffectRunner) {
+  runner?.deps?.forEach((dep) => dep.delete(runner));
+  runner.deps = [];
+}
+
+let activeEffect: EffectRunner | null = null;
 const isObject = (val: any): val is object =>
   val !== null && typeof val === "object";
 
-const targetMap = new WeakMap<object, Map<any, Set<() => void>>>();
+const targetMap = new WeakMap<object, Map<any, Set<EffectRunner>>>();
 export function track(target: object, key: string | symbol) {
   if (!activeEffect) return;
   let depsMap = targetMap.get(target);
@@ -18,9 +50,10 @@ export function track(target: object, key: string | symbol) {
   }
   let deps = depsMap.get(key);
   if (!deps) {
-    depsMap.set(key, (deps = new Set()));
+    depsMap.set(key, (deps = new Set<EffectRunner>()));
   }
   deps.add(activeEffect);
+  activeEffect.deps?.push(deps);
 }
 
 export function trigger(target: object, key: string | symbol) {
@@ -28,29 +61,26 @@ export function trigger(target: object, key: string | symbol) {
   if (!depsMap) return;
   const deps = depsMap.get(key);
   if (!deps) return;
-  const effectsToRun = new Set<RefEffect>();
-  deps.forEach((eff) => effectsToRun.add(eff));
+  const effectsToRun = new Set<EffectRunner>();
+  deps.forEach((eff: EffectRunner) => {
+    if (eff.active) {
+      effectsToRun.add(eff);
+    }
+  });
   effectsToRun.forEach((eff) => {
     if (eff.scheduler) {
       eff.scheduler();
     } else {
-      eff();
+      eff.run();
     }
   });
 }
 
-export function effect(fn: () => void, options: { scheduler?: () => void }) {
-  const runner = () => {
-    const lastEffect = activeEffect;
-    try {
-      (runner as any).scheduler = options?.scheduler;
-      activeEffect = runner as RefEffect;
-      return fn();
-    } finally {
-      activeEffect = lastEffect;
-    }
-  };
-  runner();
+export function effect(fn: () => void, options: any = {}) {
+  const runner = new EffectRunner(fn, options);
+  if (!options?.lazy) {
+    runner.run();
+  }
   return runner;
 }
 
@@ -97,7 +127,7 @@ class RefImpl<T> {
   }
 }
 // 【新增】提供一个函数来设置 activeEffect
-export function setActiveEffect(effect: RefEffect | null) {
+export function setActiveEffect(effect: EffectRunner | null) {
   activeEffect = effect;
 }
 

@@ -1,19 +1,19 @@
 import { track, trigger, setActiveEffect, getActiveEffect } from "./ref";
-import type { RefEffect } from "./ref";
+import  { EffectRunner } from "./ref";
 export interface ComputedRef<T = any> {
   readonly value: T;
-  readonly effect: RefEffect;
+  readonly effect: EffectRunner;
 }
 class ComputedRefImpl<T> {
-  public dep: Set<RefEffect> = new Set();
-  public effect: RefEffect;
+  public dep: Set<EffectRunner> = new Set();
+  public effect: EffectRunner;
   private _value!: T;
   private _dirty: boolean = true;
   private _getter: () => T;
   constructor(getter: () => T) {
     this._getter = getter;
     const prevEffect = getActiveEffect();
-    this.effect = () => {
+    this.effect = new EffectRunner(() => {
       try {
         setActiveEffect(this.effect); 
         this._value = this._getter();
@@ -22,7 +22,7 @@ class ComputedRefImpl<T> {
       } finally {
         setActiveEffect(prevEffect); 
       }
-    };
+    });
     this.effect.scheduler = () => {
       this._dirty = true;
       trigger(this, "value");
@@ -31,7 +31,7 @@ class ComputedRefImpl<T> {
   get value() {
     track(this, "value");
     if (this._dirty) {
-      this.effect();
+      this.effect.run();
     }
     return this._value;
   }
