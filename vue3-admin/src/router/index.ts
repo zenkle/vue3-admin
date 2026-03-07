@@ -22,7 +22,7 @@ const constantRoutes: RouteRecordRaw[] = [
       {
         path: "dashboard",
         name: "Dashboard",
-        component: () => import("@/views/vue3/plugin/plugin.vue"),
+        component: () => import("@/views/vue3/mini-pinia/pinia.vue"),
         meta: {
           title: "dashboard",
         },
