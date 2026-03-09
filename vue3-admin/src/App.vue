@@ -2,9 +2,8 @@
 // import { usrCounterStore } from "@/stores/counter";
 // const counterStore = usrCounterStore()
 // import Screen from "@/views/Screen/index.vue"
-import { ElConfigProvider } from 'element-plus';
-import zhCn from 'element-plus/es/locale/lang/zh-cn'
-
+import { ElConfigProvider } from "element-plus";
+import zhCn from "element-plus/es/locale/lang/zh-cn";
 </script>
 
 <template>

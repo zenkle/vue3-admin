@@ -3,9 +3,7 @@
     <div>Map</div>
   </div>
 </template>
-<script setup lang="ts">
-
-</script>
+<script setup lang="ts"></script>
 <style lang="scss" scoped>
 .screen-map {
   width: 100%;

@@ -1,7 +1,4 @@
-import axios, {
-  type InternalAxiosRequestConfig,
-  type AxiosResponse,
-} from "axios";
+import axios, { type InternalAxiosRequestConfig, type AxiosResponse } from "axios";
 import { ApiCode } from "@/enums/api";
 
 const http = axios.create({
@@ -25,7 +22,7 @@ http.interceptors.request.use(
 
 http.interceptors.response.use(
   (response: AxiosResponse) => {
-    const { code, data, msg } = response.data;
+    const { code, data } = response.data;
     if (code === ApiCode.SUCCESS) {
       return data;
     }

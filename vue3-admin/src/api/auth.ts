@@ -1,9 +1,5 @@
 import request from "@/utils/request";
-import type {
-  CaptchaResponse,
-  LoginRequest,
-  LoginResponse,
-} from "@/types/api/auth";
+import type { CaptchaResponse, LoginRequest, LoginResponse } from "@/types/api/auth";
 const AUTH_BASE_URL = "/api/v1/auth";
 
 const authApi = {
@@ -14,7 +10,7 @@ const authApi = {
       captchaId: data.captchaId,
       captchaCode: data.captchaCode,
     };
-    return request<any,LoginResponse>({
+    return request<any, LoginResponse>({
       url: `${AUTH_BASE_URL}/login`,
       method: "post",
       data: payload,

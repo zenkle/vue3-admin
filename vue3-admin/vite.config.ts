@@ -60,8 +60,7 @@ export default defineConfig(({ mode }) => {
         [env.VITE_APP_BASE_API]: {
           target: "https://api.youlai.tech",
           changeOrigin: true,
-          rewrite: (path) =>
-            path.replace(new RegExp("^" + env.VITE_APP_BASE_API), ""),
+          rewrite: (path) => path.replace(new RegExp("^" + env.VITE_APP_BASE_API), ""),
         },
       },
     },

@@ -18,13 +18,13 @@
   </div>
 </template>
 <script setup lang="ts">
-import Header from "@/views/Screen/components/Header.vue"
-import Left from "@/views/Screen/components/Left.vue"
-import Center from "@/views/Screen/components/Center.vue"
-import Right from "@/views/Screen/components/Right.vue"
-import { useResize } from "@/composables/useResize"
+import Header from "@/views/Screen/components/Header.vue";
+import Left from "@/views/Screen/components/Left.vue";
+import Center from "@/views/Screen/components/Center.vue";
+import Right from "@/views/Screen/components/Right.vue";
+import { useResize } from "@/composables/useResize";
 
-const { screenRef } = useResize();
+const { screenRef: SCREEN_REF } = useResize();
 </script>
 <style lang="scss" scoped>
 .screen-container {
@@ -32,11 +32,11 @@ const { screenRef } = useResize();
   --es-block-bg: #222733;
   --es-screen-bg: rgb(22, 21, 34);
   --es-screen-text-color: #fff;
-  height: 100%;
   width: 100%;
-  background-color: #f5f5f5;
-  background: var(--es-screen-bg);
+  height: 100%;
   color: var(--es-screen-text-color);
+  background: var(--es-screen-bg);
+  background-color: #f5f5f5;
 }
 
 .screen {
@@ -56,6 +56,5 @@ const { screenRef } = useResize();
   &__right {
     width: 460px;
   }
-
 }
 </style>

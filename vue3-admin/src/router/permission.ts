@@ -17,6 +17,6 @@ export function routerPermission(router: Router) {
       next({ name: "404" });
     }
 
-      next();
+    next();
   });
 }
