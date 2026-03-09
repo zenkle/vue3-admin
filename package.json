@@ -1,0 +1,8 @@
+{
+  "name": "learn-monorepo",
+  "private": true,
+  "devDependencies": {
+    "commitizen": "^4.3.1",
+    "cz-git": "^1.12.0"
+  }
+}

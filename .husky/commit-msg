@@ -1,0 +1,1 @@
+cd vue3-admin && npx commitlint --edit $1
