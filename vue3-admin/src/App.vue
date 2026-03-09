@@ -19,5 +19,6 @@ import zhCn from "element-plus/es/locale/lang/zh-cn";
 .app {
   width: 100%;
   height: 100%;
+  background-color: #f5f7fa;
 }
 </style>
