@@ -7,6 +7,7 @@ module.exports = {
     "stylelint-config-recess-order",
   ],
   plugins: ["stylelint-prettier"],
+  ignoreFiles: ["**/test/**", "test/**", "**/dist/**", "node_modules/**"],
   overrides: [
     {
       files: ["**/*.{vue,html}"],

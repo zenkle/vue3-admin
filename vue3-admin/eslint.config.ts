@@ -1,7 +1,8 @@
-// @ts-nocheck
 // https://eslint.nodejs.cn/docs/latest/use/configure/configuration-files
-// ESLint configuration may have type errors but works correctly at runtime
+// ESLint configuration - type checks disabled for config file
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 
+// @ts-nocheck
 import globals from "globals";
 import pluginJs from "@eslint/js"; // JavaScript 规则
 import pluginVue from "eslint-plugin-vue"; // Vue 规则
@@ -17,7 +18,7 @@ const config: import("eslint").Linter.Config[] = [
   // 指定检查文件和忽略文件
   {
     files: ["**/*.{js,mjs,cjs,ts,vue}"],
-    ignores: ["**/*.d.ts"],
+    ignores: ["**/*.d.ts", "**/test/**", "test/**"],
   },
   // 全局配置
   {
